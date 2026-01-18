@@ -1,7 +1,3 @@
-# Vision
-Below is a clean, professional **README.md** suitable for a public GitHub repository. It explains the purpose, features, setup, and limitations clearly, without overselling or misrepresenting the project.
-
----
 
 # 👁️ Vision — AI Visual Assistant (Web Prototype)
 
