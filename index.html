@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vision - Your AI Visual Assistant</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>👁️ Vision</h1>
+            <p class="subtitle">Your AI Visual Assistant</p>
+        </header>
+
+        <div class="main-controls" id="mainControls">
+            <button class="btn emergency-btn" onclick="triggerEmergency()" aria-label="Emergency Button">
+                🚨 EMERGENCY
+            </button>
+            <button class="btn voice-btn" onclick="toggleVoiceAssistant()" aria-label="Voice Assistant">
+                🎤 Voice Assistant
+            </button>
+            <button class="btn schedule-btn" onclick="showPanel('schedule')" aria-label="Schedule Manager">
+                📅 Schedule
+            </button>
+            <button class="btn health-btn" onclick="showPanel('health')" aria-label="Health Tracker">
+                ❤️ Health
+            </button>
+            <button class="btn finance-btn" onclick="showPanel('finance')" aria-label="Finance Manager">
+                💰 Finance
+            </button>
+            <button class="btn items-btn" onclick="showPanel('items')" aria-label="Item Locator">
+                📍 Find Items
+            </button>
+            <button class="btn settings-btn" onclick="showPanel('settings')" aria-label="Settings">
+                ⚙️ Settings
+            </button>
+        </div>
+
+        <!-- Voice Assistant Panel -->
+        <div class="panel" id="voicePanel">
+            <h2>🎤 Voice Assistant</h2>
+            <div class="voice-indicator">
+                <p id="voiceStatus">Click the microphone to start</p>
+                <div class="voice-wave" id="voiceWave"></div>
+            </div>
+            <div id="aiResponse" style="background: rgba(255,255,255,0.2); padding: 20px; border-radius: 10px; margin-top: 20px; min-height: 100px;">
+                <p>AI responses will appear here...</p>
+            </div>
+            <button class="close-panel" onclick="closePanel()">Close</button>
+        </div>
+
+        <!-- Schedule Panel -->
+        <div class="panel" id="schedulePanel">
+            <h2>📅 Schedule Manager</h2>
+            <div class="input-group">
+                <label for="eventTitle">Event Title</label>
+                <input type="text" id="eventTitle" placeholder="Doctor's appointment">
+            </div>
+            <div class="input-group">
+                <label for="eventTime">Date & Time</label>
+                <input type="datetime-local" id="eventTime">
+            </div>
+            <div class="input-group">
+                <label for="eventNotes">Notes</label>
+                <textarea id="eventNotes" placeholder="Remember to bring medication list"></textarea>
+            </div>
+            <button class="btn voice-btn" onclick="addScheduleItem()" style="width: 100%; margin-bottom: 20px;">Add Event</button>
+            <div id="scheduleList"></div>
+            <button class="close-panel" onclick="closePanel()">Close</button>
+        </div>
+
+        <!-- Health Panel -->
+        <div class="panel" id="healthPanel">
+            <h2>❤️ Health Tracker</h2>
+            <div class="input-group">
+                <label for="healthMetric">Metric Type</label>
+                <select id="healthMetric">
+                    <option>Blood Pressure</option>
+                    <option>Blood Sugar</option>
+                    <option>Heart Rate</option>
+                    <option>Weight</option>
+                    <option>Medication</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="healthValue">Value/Notes</label>
+                <input type="text" id="healthValue" placeholder="120/80 or Took aspirin">
+            </div>
+            <div class="input-group">
+                <label for="healthTime">Time</label>
+                <input type="datetime-local" id="healthTime">
+            </div>
+            <button class="btn health-btn" onclick="addHealthRecord()" style="width: 100%; margin-bottom: 20px;">Log Health Data</button>
+            <div id="healthList"></div>
+            <button class="close-panel" onclick="closePanel()">Close</button>
+        </div>
+
+        <!-- Finance Panel -->
+        <div class="panel" id="financePanel">
+            <h2>💰 Finance Manager</h2>
+            <div class="input-group">
+                <label for="transactionType">Type</label>
+                <select id="transactionType">
+                    <option>Income</option>
+                    <option>Expense</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="transactionAmount">Amount</label>
+                <input type="number" id="transactionAmount" placeholder="50.00" step="0.01">
+            </div>
+            <div class="input-group">
+                <label for="transactionCategory">Category</label>
+                <input type="text" id="transactionCategory" placeholder="Groceries, Salary, etc.">
+            </div>
+            <div class="input-group">
+                <label for="transactionNotes">Notes</label>
+                <input type="text" id="transactionNotes" placeholder="Weekly shopping">
+            </div>
+            <button class="btn finance-btn" onclick="addFinanceRecord()" style="width: 100%; margin-bottom: 20px;">Add Transaction</button>
+            <div id="financeList"></div>
+            <div id="financeSummary" style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 10px; margin-top: 20px;"></div>
+            <button class="close-panel" onclick="closePanel()">Close</button>
+        </div>
+
+        <!-- Items Panel -->
+        <div class="panel" id="itemsPanel">
+            <h2>📍 Item Locator</h2>
+            <div class="input-group">
+                <label for="itemName">Item Name</label>
+                <input type="text" id="itemName" placeholder="Keys, Wallet, Phone">
+            </div>
+            <div class="input-group">
+                <label for="itemLocation">Location</label>
+                <input type="text" id="itemLocation" placeholder="Kitchen counter, bedroom nightstand">
+            </div>
+            <button class="btn items-btn" onclick="addItem()" style="width: 100%; margin-bottom: 20px; color: #333;">Save Item Location</button>
+            <div class="input-group">
+                <label for="searchItem">Find an Item</label>
+                <input type="text" id="searchItem" placeholder="Search for item..." oninput="searchItems()">
+            </div>
+            <div id="itemsList"></div>
+            <button class="close-panel" onclick="closePanel()">Close</button>
+        </div>
+
+        <!-- Settings Panel -->
+        <div class="panel" id="settingsPanel">
+            <h2>⚙️ Settings</h2>
+            <div class="input-group">
+                <label for="emergencyContact">Emergency Contact</label>
+                <input type="tel" id="emergencyContact" placeholder="Phone number">
+            </div>
+            <div class="input-group">
+                <label for="emergencyMessage">Emergency Message</label>
+                <textarea id="emergencyMessage" placeholder="Custom message for emergency services"></textarea>
+            </div>
+            <div class="input-group">
+                <label for="voiceSpeed">Voice Speed</label>
+                <select id="voiceSpeed">
+                    <option value="0.8">Slow</option>
+                    <option value="1" selected>Normal</option>
+                    <option value="1.2">Fast</option>
+                </select>
+            </div>
+            <button class="btn settings-btn" onclick="saveSettings()" style="width: 100%; color: #333;">Save Settings</button>
+            <div id="settingsStatus"></div>
+            <button class="close-panel" onclick="closePanel()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        // ==================== CONFIGURATION ====================
+        const GEMINI_API_KEY = 'AIzaSyADp2AreXYnRSOkh7oTibIZIfz4X_stoS8'; // INSERT YOUR GOOGLE GEMINI API KEY HERE
+        const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
+
+
+        // ==================== DATA STORAGE ====================
+        let appData = {
+            schedule: [],
+            health: [],
+            finance: [],
+            items: [],
+            settings: {
+                emergencyContact: '',
+                emergencyMessage: '',
+                voiceSpeed: 1
+            }
+        };
+
+        // Load data from memory
+        function loadData() {
+            const saved = JSON.parse(localStorage.getItem('visionAppData') || '{}');
+            appData = { ...appData, ...saved };
+            updateAllLists();
+            loadSettings();
+        }
+
+        function saveData() {
+            localStorage.setItem('visionAppData', JSON.stringify(appData));
+        }
+
+        // ==================== VOICE & AI ====================
+        let isListening = false;
+        let recognition;
+
+        if ('webkitSpeechRecognition' in window) {
+            recognition = new webkitSpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US';
+
+            recognition.onresult = async (e) => {
+                const transcript = e.results[0][0].transcript;
+                document.getElementById('voiceStatus').textContent = `You said: "${transcript}"`;
+                await processVoiceCommand(transcript);
+            };
+
+            recognition.onerror = (e) => {
+                speak('Sorry, I had trouble hearing you. Please try again.');
+                stopListening();
+            };
+
+            recognition.onend = () => {
+                stopListening();
+            };
+        }
+
+        function toggleVoiceAssistant() {
+            showPanel('voice');
+            if (!isListening) {
+                startListening();
+            } else {
+                stopListening();
+            }
+        }
+
+        function startListening() {
+            if (!recognition) {
+                speak('Voice recognition is not supported in your browser.');
+                return;
+            }
+            isListening = true;
+            recognition.start();
+            document.getElementById('voiceStatus').textContent = 'Listening...';
+            document.getElementById('voiceWave').classList.add('active');
+            speak('I am listening. How can I help you?');
+        }
+
+        function stopListening() {
+            isListening = false;
+            if (recognition) recognition.stop();
+            document.getElementById('voiceWave').classList.remove('active');
+        }
+
+        async function processVoiceCommand(text) {
+    try {
+        const response = await fetch('/api/ask', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                prompt: `
+You are Vision, an AI assistant for visually impaired users.
+
+Context:
+- Schedule management
+- Health tracking
+- Finance tracking
+- Finding items
+- General assistance
+
+User said: "${text}"
+
+Current data:
+- Schedule: ${JSON.stringify(appData.schedule.slice(0, 3))}
+- Recent health: ${JSON.stringify(appData.health.slice(-3))}
+- Items: ${JSON.stringify(appData.items.slice(0, 5))}
+
+Respond clearly and concisely.
+`
+            })
+        });
+
+        const data = await response.json();
+        const aiText =
+            data.reply || 'I apologize, I could not process that request.';
+
+        document.getElementById('aiResponse').innerHTML =
+            `<p><strong>You:</strong> ${text}</p>
+             <p><strong>Vision:</strong> ${aiText}</p>`;
+
+        speak(aiText);
+    } catch (err) {
+        const fallback =
+            'I am here to help. You can ask me about your schedule, health, finances, or to find items.';
+        document.getElementById('aiResponse').innerHTML = `<p>${fallback}</p>`;
+        speak(fallback);
+    }
+}
+
+
+        function speak(text) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = parseFloat(appData.settings.voiceSpeed);
+            utterance.pitch = 1;
+            utterance.volume = 1;
+            speechSynthesis.speak(utterance);
+        }
+
+        // ==================== EMERGENCY ====================
+        function triggerEmergency() {
+            const contact = appData.settings.emergencyContact || 'Emergency Services';
+            const message = appData.settings.emergencyMessage || 'Emergency assistance needed';
+            
+            speak(`Emergency activated. Attempting to contact ${contact}. ${message}`);
+            
+            // Visual feedback
+            document.body.style.background = 'linear-gradient(135deg, #f5576c 0%, #f093fb 100%)';
+            setTimeout(() => {
+                document.body.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+            }, 3000);
+            
+            alert(`🚨 EMERGENCY ACTIVATED\n\nContact: ${contact}\nMessage: ${message}\n\nIn a real scenario, this would:\n- Call emergency services\n- Send SMS to contacts\n- Share your location`);
+        }
+
+        // ==================== SCHEDULE ====================
+        function addScheduleItem() {
+            const title = document.getElementById('eventTitle').value;
+            const time = document.getElementById('eventTime').value;
+            const notes = document.getElementById('eventNotes').value;
+
+            if (!title || !time) {
+                speak('Please provide an event title and time');
+                return;
+            }
+
+            appData.schedule.push({ id: Date.now(), title, time, notes });
+            saveData();
+            updateScheduleList();
+            speak(`Added ${title} to your schedule`);
+            
+            document.getElementById('eventTitle').value = '';
+            document.getElementById('eventTime').value = '';
+            document.getElementById('eventNotes').value = '';
+        }
+
+        function updateScheduleList() {
+            const list = document.getElementById('scheduleList');
+            list.innerHTML = appData.schedule.map(item => `
+                <div class="list-item">
+                    <div>
+                        <strong>${item.title}</strong><br>
+                        ${new Date(item.time).toLocaleString()}<br>
+                        <small>${item.notes}</small>
+                    </div>
+                    <button class="delete-btn" onclick="deleteSchedule(${item.id})">Delete</button>
+                </div>
+            `).join('');
+        }
+
+        function deleteSchedule(id) {
+            appData.schedule = appData.schedule.filter(item => item.id !== id);
+            saveData();
+            updateScheduleList();
+            speak('Event deleted');
+        }
+
+        // ==================== HEALTH ====================
+        function addHealthRecord() {
+            const metric = document.getElementById('healthMetric').value;
+            const value = document.getElementById('healthValue').value;
+            const time = document.getElementById('healthTime').value;
+
+            if (!value || !time) {
+                speak('Please provide health data and time');
+                return;
+            }
+
+            appData.health.push({ id: Date.now(), metric, value, time });
+            saveData();
+            updateHealthList();
+            speak(`Logged ${metric}: ${value}`);
+            
+            document.getElementById('healthValue').value = '';
+            document.getElementById('healthTime').value = '';
+        }
+
+        function updateHealthList() {
+            const list = document.getElementById('healthList');
+            list.innerHTML = appData.health.slice(-10).reverse().map(item => `
+                <div class="list-item">
+                    <div>
+                        <strong>${item.metric}</strong>: ${item.value}<br>
+                        <small>${new Date(item.time).toLocaleString()}</small>
+                    </div>
+                    <button class="delete-btn" onclick="deleteHealth(${item.id})">Delete</button>
+                </div>
+            `).join('');
+        }
+
+        function deleteHealth(id) {
+            appData.health = appData.health.filter(item => item.id !== id);
+            saveData();
+            updateHealthList();
+        }
+
+        // ==================== FINANCE ====================
+        function addFinanceRecord() {
+            const type = document.getElementById('transactionType').value;
+            const amount = parseFloat(document.getElementById('transactionAmount').value);
+            const category = document.getElementById('transactionCategory').value;
+            const notes = document.getElementById('transactionNotes').value;
+
+            if (!amount || !category) {
+                speak('Please provide amount and category');
+                return;
+            }
+
+            appData.finance.push({ id: Date.now(), type, amount, category, notes, date: new Date().toISOString() });
+            saveData();
+            updateFinanceList();
+            speak(`${type} of $${amount.toFixed(2)} recorded for ${category}`);
+            
+            document.getElementById('transactionAmount').value = '';
+            document.getElementById('transactionCategory').value = '';
+            document.getElementById('transactionNotes').value = '';
+        }
+
+        function updateFinanceList() {
+            const list = document.getElementById('financeList');
+            list.innerHTML = appData.finance.slice(-10).reverse().map(item => `
+                <div class="list-item">
+                    <div>
+                        <strong>${item.type}</strong>: $${item.amount.toFixed(2)}<br>
+                        ${item.category} - ${item.notes}<br>
+                        <small>${new Date(item.date).toLocaleDateString()}</small>
+                    </div>
+                    <button class="delete-btn" onclick="deleteFinance(${item.id})">Delete</button>
+                </div>
+            `).join('');
+
+            const income = appData.finance.filter(t => t.type === 'Income').reduce((sum, t) => sum + t.amount, 0);
+            const expense = appData.finance.filter(t => t.type === 'Expense').reduce((sum, t) => sum + t.amount, 0);
+            const balance = income - expense;
+
+            document.getElementById('financeSummary').innerHTML = `
+                <strong>Summary</strong><br>
+                Income: $${income.toFixed(2)}<br>
+                Expenses: $${expense.toFixed(2)}<br>
+                Balance: $${balance.toFixed(2)}
+            `;
+        }
+
+        function deleteFinance(id) {
+            appData.finance = appData.finance.filter(item => item.id !== id);
+            saveData();
+            updateFinanceList();
+        }
+
+        // ==================== ITEMS ====================
+        function addItem() {
+            const name = document.getElementById('itemName').value;
+            const location = document.getElementById('itemLocation').value;
+
+            if (!name || !location) {
+                speak('Please provide item name and location');
+                return;
+            }
+
+            appData.items.push({ id: Date.now(), name, location, timestamp: new Date().toISOString() });
+            saveData();
+            updateItemsList();
+            speak(`Saved ${name} location as ${location}`);
+            
+            document.getElementById('itemName').value = '';
+            document.getElementById('itemLocation').value = '';
+        }
+
+        function searchItems() {
+            const query = document.getElementById('searchItem').value.toLowerCase();
+            const filtered = query ? appData.items.filter(item => item.name.toLowerCase().includes(query)) : appData.items;
+            
+            const list = document.getElementById('itemsList');
+            list.innerHTML = filtered.map(item => `
+                <div class="list-item">
+                    <div>
+                        <strong>${item.name}</strong><br>
+                        📍 ${item.location}<br>
+                        <small>Saved: ${new Date(item.timestamp).toLocaleString()}</small>
+                    </div>
+                    <button class="delete-btn" onclick="deleteItem(${item.id})">Delete</button>
+                </div>
+            `).join('');
+
+            if (filtered.length === 1 && query) {
+                speak(`${filtered[0].name} is in ${filtered[0].location}`);
+            }
+        }
+
+        function updateItemsList() {
+            searchItems();
+        }
+
+        function deleteItem(id) {
+            appData.items = appData.items.filter(item => item.id !== id);
+            saveData();
+            updateItemsList();
+        }
+
+        // ==================== SETTINGS ====================
+        function saveSettings() {
+            appData.settings.emergencyContact = document.getElementById('emergencyContact').value;
+            appData.settings.emergencyMessage = document.getElementById('emergencyMessage').value;
+            appData.settings.voiceSpeed = document.getElementById('voiceSpeed').value;
+            saveData();
+            
+            document.getElementById('settingsStatus').innerHTML = '<div class="status">✓ Settings saved successfully</div>';
+            speak('Settings saved');
+            setTimeout(() => {
+                document.getElementById('settingsStatus').innerHTML = '';
+            }, 3000);
+        }
+
+        function loadSettings() {
+            document.getElementById('emergencyContact').value = appData.settings.emergencyContact || '';
+            document.getElementById('emergencyMessage').value = appData.settings.emergencyMessage || '';
+            document.getElementById('voiceSpeed').value = appData.settings.voiceSpeed || 1;
+        }
+
+        // ==================== PANEL MANAGEMENT ====================
+        function showPanel(panelName) {
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            document.getElementById(panelName + 'Panel').classList.add('active');
+            document.getElementById('mainControls').style.display = 'none';
+        }
+
+        function closePanel() {
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            document.getElementById('mainControls').style.display = 'grid';
+            stopListening();
+        }
+
+        function updateAllLists() {
+            updateScheduleList();
+            updateHealthList();
+            updateFinanceList();
+            updateItemsList();
+        }
+
+        // ==================== INITIALIZATION ====================
+        window.addEventListener('load', () => {
+            loadData();
+            speak('Welcome to Vision, your AI visual assistant. How can I help you today?');
+        });
+
+        // Set current datetime for inputs
+        document.addEventListener('DOMContentLoaded', () => {
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            const datetime = now.toISOString().slice(0, 16);
+            document.getElementById('eventTime').value = datetime;
+            document.getElementById('healthTime').value = datetime;
+        });
+    </script>
+</body>
+</html>
